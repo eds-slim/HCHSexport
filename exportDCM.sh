@@ -140,12 +140,19 @@ if true; then
 		echo "${subj##*/},$HCHS_ID,$HCHS_ID_HASH" >> $DICTFILE
 	done
 
-	cat $DICTFILE | awk -F , '{print $2}' | uniq -d
-	cat $DICTFILE | uniq | awk -F , '{print $2}' | uniq -d | wc -l
+	NUMBER_COLLISIONS=$(cat $DICTFILE | awk '{print $2","$3}' | uniq -d | awk '{print $2}' | uniq -d | wc -l)
+	if [ "$NUMBER_COLLISIONS" != "0" ]; then
+		echo "Pseudonymisation resulted in conflicts. Consider longer pseudonyms or preallocation"
+		exit 1
+	else
+		echo "No collisions occurred."
+	fi
 
 fi
 ## end pseudonym precheck ##
 
+
+exit
 
 echo $OUT_DIR
 if [ -z ${OUT_DIR+x} ]; then
